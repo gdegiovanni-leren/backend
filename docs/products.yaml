@@ -1,0 +1,77 @@
+paths:
+  /api/products:
+    get:
+      summary: 'Obtiene productos'
+      tags:
+        - Products
+      responses:
+        "200":
+          description: 'Devuelve producto satisfactoriamente'
+          content:
+           application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#components/schemas/Product'
+        "500":
+          description: 'Error interno del servidor'
+
+    post:
+      summary: 'Crear producto'
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref:  '#components/requestBodies/insertProduct'
+
+  /api/products/{pid}:
+    get:
+      summary: 'Obtiene producto por ID'
+      tags:
+        - Products
+      parameters:
+      - name : pid
+        in: path
+        required: true
+        description: 'Id del producto solicitado'
+        schema:
+          type: string
+      responses:
+        "200":
+          description: 'Se encontro producto'
+        "500":
+          description: 'Error interno de servidor'
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        _Id:
+          type: ObjectId
+          description: Id autogenerado
+        name:
+          type: String
+          description: Nombre
+        otro:
+          type: integer
+          description: numerico...
+      example:
+         _id: 'askdj93383838'
+         name: 'asd'
+         otro: 3
+  requestBodies:
+    insertProduct:
+      type: object
+      properties:
+        name:
+          type: String
+          description: Nombre
+        otro:
+          type: integer
+          description: numerico...
+      example:
+         name: 'asd'
+         otro: 3
