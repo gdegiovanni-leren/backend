@@ -34,10 +34,9 @@ paymentNotification = async( req, res ) => {
       console.log(' @ TOPIC OTHER')
 
       let query = await req.query
-      console.log(query)
       let body = await req.body;
-      console.log(body)
       console.log('body data',body.data)
+
       let notification_id = body.id ?? null;
       let action = body.action ?? null;
       let type = body.type ?? null;
@@ -56,8 +55,8 @@ paymentNotification = async( req, res ) => {
     try{
       const mercadopago = new MercadoPagoConfig({ accessToken: 'TEST-2560306983812053-042718-778c75b9047a1615c853929a0f1b1798-249531119' });
       const payment = new Payment(mercadopago)
-      console.log('PAYMENT  ID TO SET',notification_id)
-      await payment.get({ id: notification_id }).then(console.log).catch(console.log);
+      console.log('PAYMENT  ID TO SET',payment_id)
+      await payment.get({ id: payment_id }).then(console.log).catch(console.log);
     }catch(e){
       console.log(e)
     }
