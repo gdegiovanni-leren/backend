@@ -34,6 +34,16 @@ const cartSchema = mongoose.Schema({
         type: Boolean,
         required: false,
         default: false
+    },
+    payment_id:{
+        type:String,
+        required: false,
+        default: ''
+    },
+    status: {
+        type:String,
+        required: false,
+        default: 'pending'
     }
 }, { minimize: false })
 
