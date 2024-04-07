@@ -246,10 +246,14 @@ class UserService {
             let user = await this.userDAO.findOne(username)
             if(!user) return { isvalid : false, status : 400 , data : null, message: "No user found" }
 
+            let url = `${config.base_url}assets/profiles/${file.filename}`
+            ///fix wired error production
+            const profile_url = url.replace("=", "")
+
             user.profile_name = profile_name
             user.profile_address = profile_address
             user.profile_phone = profile_phone
-            user.profile_picture = file?.filename ? config.base_url+'assets/profiles/'+file.filename : null
+            user.profile_picture = file?.filename ? profile_url : null
             await this.userDAO.update(user)
 
             return  { isvalid : true, status : 200 , data: user.profile_picture , message: "Profile updated succesfully!" }
