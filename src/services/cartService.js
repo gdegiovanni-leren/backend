@@ -284,7 +284,7 @@ class CartService {
         }
 
         //if everything turned out correctly, we create a ticket and send an email to customer in ticket Service
-        const result = await ticketService.generateTicket(operation,products_success,owner)
+        const result = await ticketService.generateTicket(operation,products_purchase,owner)
 
         return operation
 

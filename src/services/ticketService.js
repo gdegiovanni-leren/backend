@@ -10,14 +10,14 @@ class TicketService {
     }
 
 
-    generateTicket = async (data,products_success,owner) => {
+    generateTicket = async (data,products_purchase,owner) => {
         try{
             let ticket = {
                 code: crypto.randomBytes(20).toString('hex'),
                 amount : parseFloat(data.total_amount),
                 operation_status : data.transaction,
                 status: 'Success' ,
-                purcharser_id : owner.uid,
+                purcharser_id : owner._id.toString(),
                 purchaser_username : owner.username,
             }
             await this.ticketDAO.create(ticket)
