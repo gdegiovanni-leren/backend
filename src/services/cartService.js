@@ -215,7 +215,7 @@ class CartService {
 
         let cart = await this.cartDAO.findById(cid)
         if(!cart || cart.products.length <= 0) return { status: false ,  message : `The operation failed. Cart not found or is empty.`}
-        let owner = await userService.getUserById(cart.owner_id)
+        let owner = await userService.getUserById(cart.cart_owner)
         console.log('owner of cart found? ',owner)
         if(!owner) return { status: false ,  message : `The operation failed. Cart owner not found.`}
 
