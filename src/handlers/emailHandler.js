@@ -135,6 +135,7 @@ export const sendPurchaseEmail = async (data,products,owner) => {
        let header = '<tr><th>Title</th><th>Unit Price</th><th>Quantity</th></tr>'
        let body = ''
        for(let product of products){
+          let row = ''
           row = '<tr><td>'+product.title+'</td><td>'+product.price+'</td><td>'+product.quantity+'</td></tr>'
           body = body+''+row
        }
