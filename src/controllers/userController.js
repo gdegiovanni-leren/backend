@@ -147,7 +147,7 @@ class UserController {
 
         if(!user || user.role != 'user') return res.status(405).json({isValid: false, status: 405 , message: 'You dont have permissons to do this action'})
 
-        const result = await userService.updatePremiumMembrecy(user.id)
+        const result = await userService.updatePremiumMembrecy(user.username)
 
         if(result.isvalid){
             return res.status(200).json({message: 'OK?'})

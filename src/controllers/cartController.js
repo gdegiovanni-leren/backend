@@ -1,35 +1,94 @@
-import { cartService } from '../services/indexService.js'
+import { cartService, userService } from '../services/indexService.js'
 import { MercadoPagoConfig , Preference } from 'mercadopago';
+import config from '../config/config.js';
 
 class CartController {
 
 constructor(){}
 
+paymentNotification = async( req, res ) => {
+  console.log('@@@@@ webhook received @@@@@@')
+  console.log(req)
+  console.log(req.body)
+  console.log(req.data)
+  return res.status(200).json({messsage: 'OK'})
+}
+
+
 
 createPreference = async( req , res ) => {
+
+const { cid } = req.params
+const { username } = await req.user
+console.log('creating preference for cid ',cid)
+
+const user = await userService.getUserByUsername(username)
+const cart = await cartService.getCart(cid)
+
+if(!cart || cart.status == false ) return res.status(404).json({ status: false, message: 'Cannot create preference, cart not found'})
+
+console.log('user found?', user)
+console.log('cart found?', cart)
 
 // Add Your credentials
 const client = new MercadoPagoConfig({ accessToken: 'TEST-2560306983812053-042718-778c75b9047a1615c853929a0f1b1798-249531119' });
 const preference = new Preference(client);
 
+console.log('notification calback to ')
+console.log(`${config.base_url}api/carts/payment_notification`)
+//notification_url: `${config.base_url}api/carts/payment_notification`,
+//notification_url = https://backend-production-2f21.up.railway.app/api/carts/payment_notification
+
+
 preference.create({
     body: {
       items: [
         {
-          title: 'My product',
+          title: 'My product 1',
+          quantity: 1,
+          unit_price: 2000
+        },
+        {
+          title: 'My product 2',
           quantity: 1,
           unit_price: 2000
         }
       ],
+      payer: {
+        name: user.profile_name ? user.profile_name : user.username,
+        email: user.username,
+        phone: {
+            area_code: '',
+            number: user.profile_phone ??  0
+        },
+        identification: {
+            type: 'DNI',
+            number: ''
+        },
+        address: {}
+      },
+      external_reference: cid,
+      notification_url : `https://backend-production-2f21.up.railway.app/api/carts/payment_notification`,
+      statement_descriptor: 'Pago de orden usuario '+user.username
     }
   })
-  .then( result => {
-    console.log(result)
-    return res.status(200).json({message: result})
+  .then( async result => {
+    console.log('result id ?',result.id)
+    if(result.id){
+      cart.preference_id = result.id
+      cart.preference_setup = true
+      const updatecart = await cartService.updateCartPreferences(cid,cart)
+      if(updatecart == true){
+        return res.status(200).json({ status:  true, preference_id : result.id, message: 'Cart preferences updated'})
+      }else{
+        return res.status(500).json({ status:  false, message: 'Error updating cart preferences'})
+      }
+    }
+
   })
   .catch( error => {
     console.log(error);
-    return res.status(200).json({message: 'fail'})
+    return res.status(200).json({status: false, message: 'fail'})
   })
 }
 

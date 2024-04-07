@@ -181,8 +181,13 @@ class ProductService {
             let thumbnails_url = Array()
             for await (const file of files){
               console.log('file found')
+              //const originalname = file.originalname.split(".");
+             // const name = originalname[0]
+              //const extension = originalname[1]
+              //thumbnails_url.push(`${name}_${new Date().getDay()}.${extension}`)
+              //thumbnails_url.push('assets/images/'+file.filename)
+              console.log('base url: ',config.base_url)
               let url = `${config.base_url}assets/products/${file.filename}`
-              //fix wired error production
               const url_thumbnail = url.replace("=", "");
 
                console.log('thumnail push to destination:')

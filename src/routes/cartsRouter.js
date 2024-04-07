@@ -20,5 +20,7 @@ router.delete("/:cid/products/:pid", auth, authorization(['user','premium']), ca
 
 router.post("/:cid/purchase", auth, authorization(['user','premium']), cartController.purchase )
 
-
+//MERCADOPAGO PAYMENT
 router.post("/:cid/create_preference", auth, authorization(['user','premium']), cartController.createPreference )
+//calbacks
+router.post("/payment_notification" , cartController.paymentNotification )

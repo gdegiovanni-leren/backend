@@ -19,9 +19,9 @@ export const sendRecoveryPasswordEmail = async(email,recovery_code) => {
             to: email,
             subject: 'Recovery CODE for SHOES MARKET',
             html: '<div>'+
-            '<h2>YOUR RECOVERY CODE:</h2><br>'+
-            '<p><strong>'+recovery_code+'<strong></p><br><br>'+
-            '<p><strong>If you did not request password recovery please ignore this email or contact with myshoemarket.securesupport@myshoemarket.com<strong></p><br>'+
+            '<h3>YOUR RECOVERY CODE:</h3><br>'+
+            '<h1><strong>'+recovery_code+'<strong></h1><br>'+
+            '<p><strong>If you did not request password recovery please ignore this email or contact with myshoemarket.securesupport@myshoemarket.com<strong> .</p><br>'+
             '<p>Thanks!</p><br>'+
             '<p>SHOES MARKET Support</p><br>'+
             '</div>'

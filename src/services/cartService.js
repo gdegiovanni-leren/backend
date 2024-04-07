@@ -175,12 +175,39 @@ class CartService {
     }
 
 
+    updateCartPreferences = async (cid,cart) => {
+      try{
+        console.log('updating cart', cart)
+        await this.cartDAO.update(cid,cart)
+        return true
+      }catch(e){
+        console.log('exception update cart preferences',e)
+        return false
+      }
+    }
+
+
     purchase = async (cid) => {
 
       try{
 
         let cart = await this.cartDAO.findById(cid)
         if(!cart || cart.products.length <= 0) return { status: false ,  message : `The operation failed. Cart not found or is empty.`}
+
+
+        //validate payment
+        if(!cart.payment_status || cart.payment_status == false){
+          console.log('cart payment stauts null or false')
+          return {
+            status: false ,
+            message : `You need to payment!`,
+            pending_payment: true,
+            transaction : 'unsuccess',
+            total_amount : 0,
+            products_success: null,
+            products_error: null
+          }
+        }
 
         let total_amount = 0
         let products_purchase =  Array()
@@ -215,6 +242,7 @@ class CartService {
           return {
             status: false ,
             message : `Oh! we sorry, none of your products are available at this time, don't worry, we will notify you when there is stock!`,
+            pending_payment: false,
             transaction : 'unsuccess',
             total_amount : 0,
             products_success: products_purchase,
@@ -225,6 +253,7 @@ class CartService {
         let operation = {
           status: true ,
           message : `OK`,
+          pending_payment: false,
           transaction : products_error.length > 0 ? 'partial' : 'complete' ,
           total_amount : total_amount,
           products_success: products_purchase,

@@ -3,7 +3,6 @@ export default class productDTO {
 
 
     constructor(product,thumbnails,user){
-        console.log('PRODUCT DTO CREATING USER ',user)
         this.title = product.title.trim(),
         this.description = product.description.trim(),
         this.code = product.code,

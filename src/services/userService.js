@@ -293,11 +293,12 @@ class UserService {
     }
 
 
-    updatePremiumMembrecy = async (id) => {
+    updatePremiumMembrecy = async (username) => {
 
-        console.log('updat epremium user membrecy with id ',id)
+        console.log('update premium user membrecy')
         try{
-            let user = await this.userDAO.findById(id)
+            let user = await this.userDAO.findOne(username)
+            console.log('premium user found to update? ',user)
             if(!user) return { isvalid : false, status : 400 , message: "No user found" }
 
             if(user.documents_status == false) return { isvalid : false, status : 400 , message: "You need to upload all documentation to become a premium user." }

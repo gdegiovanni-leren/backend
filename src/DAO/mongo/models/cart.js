@@ -19,6 +19,21 @@ const cartSchema = mongoose.Schema({
         ],
 
         default: []
+    },
+    preference_setup: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
+    preference_id: {
+        type: String,
+        required: false,
+        default: null
+    },
+    payment_status:{
+        type: Boolean,
+        required: false,
+        default: false
     }
 }, { minimize: false })
 
