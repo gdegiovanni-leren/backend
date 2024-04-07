@@ -137,7 +137,7 @@ await preference.create({
   .then( async result => {
     console.log('result id ?',result)
     if(result.id){
-       cart.preference_id = result.id
+       cart.preference_id =  result.id
        cart.preference_setup = true
        cart.cart_owner = await user._id.toString()
       const updatecart = await cartService.updateCartPreferences(cid,cart)

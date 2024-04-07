@@ -101,6 +101,7 @@ export const sendProductDeletedEmail = async (email,product_name) => {
 export const sendPurchaseEmail = async (data,products,owner) => {
 
     console.log('email purchase send to ',owner.username)
+    console.log('products',products)
     try{
         const transport = nodemailer.createTransport({
             service: 'gmail',

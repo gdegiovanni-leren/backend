@@ -10,7 +10,7 @@ class TicketService {
     }
 
 
-    generateTicket = async (data,products_purchase,owner) => {
+    generateTicket = async (data,products_success,owner) => {
         try{
             let ticket = {
                 code: crypto.randomBytes(20).toString('hex'),
