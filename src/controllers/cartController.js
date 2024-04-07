@@ -8,9 +8,53 @@ constructor(){}
 
 paymentNotification = async( req, res ) => {
   console.log('@@@@@ webhook received @@@@@@')
-  console.log(req)
-  console.log(req.body)
-  console.log(req.data)
+
+  let id = req.query.id;
+  let topic = req.query.topic;
+  logger.info('data request: '+id+' '+topic);
+  if(id){
+    //first response notification webhook received
+    logger.info('first response webhook id found');
+    //res.status(200).send('OK');
+  }
+  let body = req.body;
+  console.log(body)
+  let notification_id = body.id;
+  let action = body.action;
+  let type = body.type;
+  let date_created = body.date_created;
+  let payment_id = body.data.id;
+
+  let mp_payment = {
+    notification_id : notification_id,
+    status : action,
+    payment_type : type,
+    date_created : date_created,
+    payment_id : payment_id
+  }
+
+  console.log(mp_payment);
+
+
+  if(mp_payment.payment_id){
+  console.log('notification payment id found, checking API payment...');
+  }
+  const mercadopago = new MercadoPagoConfig({ accessToken: 'TEST-2560306983812053-042718-778c75b9047a1615c853929a0f1b1798-249531119' });
+
+   try{
+  let response_mp = await mercadopago.payment.findById(mp_payment.payment_id);
+
+  if(response_mp){
+    console.log(response_mp)
+  }
+
+
+  }catch(e){
+    console.log('ERROR GETTING MERCADOPAGO PAYMENT API SDK')
+    console.log(e)
+  }
+
+
   return res.status(200).json({messsage: 'OK'})
 }
 
