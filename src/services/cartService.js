@@ -245,9 +245,9 @@ class CartService {
             //quantity validation
             console.log('p stock: '+p.stock+' vs element quantity '+element.quantity)
             if((p.stock - element.quantity) < 0 ){
-              products_error.push({ _id : pid , quantity: element.quantity , price: element.price, title: element.title, message : 'Out of stock' })
+              products_error.push({ _id : pid , quantity: element.quantity , price: p.price, title: p.title, message : 'Out of stock' })
             }else{
-                products_purchase.push({ _id : pid, quantity: element.quantity , price: element.price, title: element.title,  message: 'Success' })
+                products_purchase.push({ _id : pid, quantity: element.quantity , price: p.price, title: p.title,  message: 'Success' })
                 //stock discount
                 await productService.stockDiscount(pid,element.quantity)
                 //delete product from cart

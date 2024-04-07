@@ -153,7 +153,7 @@ export const sendPurchaseEmail = async (data,products,owner) => {
         }
         await transport.sendMail({
             from: config.nodemailer_user,
-            to: email,
+            to: owner.username,
             subject: 'Your purchase details from MY SHOES MARKET',
             html: '<div>'+
             '<h2>HI <strong>'+owner.username+'</strong>. Thanks you very much for your purchase at <strong>MY SHOES MARKET</strong></h2>'+
