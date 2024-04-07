@@ -188,7 +188,7 @@ class ProductService {
               //thumbnails_url.push('assets/images/'+file.filename)
               console.log('base url: ',config.base_url)
               let url = `${config.base_url}assets/products/${file.filename}`
-              const url_thumbnail = url.replace("+", "");
+              const url_thumbnail = url.replace("=", "");
 
                console.log('thumnail push to destination:')
               console.log(url_thumbnail)
