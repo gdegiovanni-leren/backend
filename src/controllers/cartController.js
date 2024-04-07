@@ -82,7 +82,7 @@ console.log('notification calback to ')
 console.log(`${config.base_url}api/carts/payment_notification`)
 //notification_url: `${config.base_url}api/carts/payment_notification`,
 //notification_url = https://backend-production-2f21.up.railway.app/api/carts/payment_notification
-
+//notification_url : `https://backend-production-2f21.up.railway.app/api/carts/payment_notification`,
 
 preference.create({
     body: {
@@ -112,7 +112,11 @@ preference.create({
         address: {}
       },
       external_reference: cid,
-      notification_url : `https://backend-production-2f21.up.railway.app/api/carts/payment_notification`,
+      back_urls: {
+        "success": "https://backend-production-2f21.up.railway.app/api/carts/payment_notification",
+        "failure": "https://backend-production-2f21.up.railway.app/api/carts/payment_notification",
+        "pending": "https://backend-production-2f21.up.railway.app/api/carts/payment_notification"
+      },
       statement_descriptor: 'Pago de orden usuario '+user.username
     }
   })
