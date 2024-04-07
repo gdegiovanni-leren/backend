@@ -1,10 +1,17 @@
 import { cartService, userService } from '../services/indexService.js'
-import { MercadoPagoConfig , Preference } from 'mercadopago';
+import { MercadoPagoConfig , Preference, MerchantOrder  } from 'mercadopago';
 import config from '../config/config.js';
 
 class CartController {
 
 constructor(){}
+
+/*
+const client = new MercadoPago({ accessToken: 'ACCESS_TOKEN' });
+const customerClient = new MerchantOrder(client);
+
+customerClient.get({ merchantOrderId: '<MERCHANT_ORDER_ID>' }).then(console.log).catch(console.log);
+*/
 
 paymentNotification = async( req, res ) => {
   console.log('@@@@@ webhook received @@@@@@')
@@ -19,12 +26,8 @@ paymentNotification = async( req, res ) => {
   }
   let body = req.body;
   console.log(body)
-  let notification_id = body.id;
-  let action = body.action;
-  let type = body.type;
-  let date_created = body.date_created;
-  let payment_id = body.data.id;
 
+  /*
   let mp_payment = {
     notification_id : notification_id,
     status : action,
@@ -32,28 +35,25 @@ paymentNotification = async( req, res ) => {
     date_created : date_created,
     payment_id : payment_id
   }
+  */
 
-  console.log(mp_payment);
+  //console.log(mp_payment);
 
 
+  /*
   if(mp_payment.payment_id){
   console.log('notification payment id found, checking API payment...');
   }
+  */
+  try{
   const mercadopago = new MercadoPagoConfig({ accessToken: 'TEST-2560306983812053-042718-778c75b9047a1615c853929a0f1b1798-249531119' });
-
-   try{
-  let response_mp = await mercadopago.payment.findById(mp_payment.payment_id);
-
-  if(response_mp){
-    console.log(response_mp)
-  }
-
+  const customerClient = new MerchantOrder(mercadopago);
+  console.log('MERCHANT ORDER ID TO SET',id)
+  await customerClient.get({ merchantOrderId: id }).then(console.log).catch(console.log);
 
   }catch(e){
-    console.log('ERROR GETTING MERCADOPAGO PAYMENT API SDK')
     console.log(e)
   }
-
 
   return res.status(200).json({messsage: 'OK'})
 }
@@ -82,7 +82,7 @@ console.log('notification calback to ')
 console.log(`${config.base_url}api/carts/payment_notification`)
 //notification_url: `${config.base_url}api/carts/payment_notification`,
 //notification_url = https://backend-production-2f21.up.railway.app/api/carts/payment_notification
-//notification_url : `https://backend-production-2f21.up.railway.app/api/carts/payment_notification`,
+
 
 preference.create({
     body: {
@@ -112,11 +112,7 @@ preference.create({
         address: {}
       },
       external_reference: cid,
-      back_urls: {
-        "success": "https://backend-production-2f21.up.railway.app/api/carts/payment_notification",
-        "failure": "https://backend-production-2f21.up.railway.app/api/carts/payment_notification",
-        "pending": "https://backend-production-2f21.up.railway.app/api/carts/payment_notification"
-      },
+      notification_url : `https://backend-production-2f21.up.railway.app/api/carts/payment_notification`,
       statement_descriptor: 'Pago de orden usuario '+user.username
     }
   })
