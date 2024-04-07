@@ -65,7 +65,7 @@ export const sendDeletedUserEmail = async(email) => {
     }
 }
 
-export const sendProductDeletedEmail = async(email,product_name) => {
+export const sendProductDeletedEmail = async (email,product_name) => {
 
     console.log('email send product deleted to ',email)
 
@@ -95,4 +95,47 @@ export const sendProductDeletedEmail = async(email,product_name) => {
         console.log('Unknown error sending product delete email..',e)
         return false
     }
+}
+
+
+export const sendPurchaseEmail = async (data,products,owner) => {
+
+    console.log('email purchase send to ',owner.username)
+    try{
+        const transport = nodemailer.createTransport({
+            service: 'gmail',
+            port: 587,
+            auth: {
+                user: config.nodemailer_user,
+                pass: config.nodemailer_pass
+            }
+        })
+
+       if(data.operation_status == 'complete'){
+            body_message = 'Below we show you the details of your purchase. If you have any questions, you can contact support at +3393939322 and we will provide you with immediate attention.'
+        }else{
+            body_message = 'Below are the details of your purchase. We regret that you were not able to purchase all the products, but we will notify you immediately that we have stock!. You can contact support at +3393939322 and we will provide you with immediate attention.'
+        }
+        //USE AWAIT ON THIS?
+        await transport.sendMail({
+            from: config.nodemailer_user,
+            to: email,
+            subject: 'Your purchase details from MY SHOES MARKET',
+            html: '<div>'+
+            '<h2>HI <strong>'+owner.username+'</strong>. Thanks you very much for your purchase at <strong>MY SHOES MARKET</strong></h2>'+
+            '<p>'+body_message+'</p>'+
+            '<p>TODO: DETAILS....</p>'+
+            '<p> Total: <strong> $'+String(data.amount)+'</strong> </p></br>'+
+            '<p> Ticket code: <strong> $'+data.code+'</strong> </p></br>'+
+            '<p>Thanks for trusting us!</p>'+
+            '</div>'
+            })
+            return true
+    }catch(e){
+        console.log('Unknown error sending purchase email..',e)
+        return false
+    }
+
+
+
 }

@@ -1,4 +1,4 @@
-import { productService } from './indexService.js'
+import { productService, userService } from './indexService.js'
 import { ticketService } from './indexService.js'
 
 
@@ -16,7 +16,7 @@ class CartService {
 
     getCart = async (cid) => {
       try {
-          const cart = await this.cartDAO.findOneById(cid)
+          const cart = await this.cartDAO.findById(cid)
           if(cart) return { status: true , cart : cart }
       } catch (error) {
         console.log(error)
@@ -215,14 +215,16 @@ class CartService {
 
         let cart = await this.cartDAO.findById(cid)
         if(!cart || cart.products.length <= 0) return { status: false ,  message : `The operation failed. Cart not found or is empty.`}
-
+        let owner = await userService.getUserById(cart.owner_id)
+        console.log('owner of cart found? ',owner)
+        if(!owner) return { status: false ,  message : `The operation failed. Cart owner not found.`}
 
         //validate payment
         if(!cart.payment_status || cart.payment_status == false){
           console.log('cart payment stauts null or false')
           return {
             status: false ,
-            message : `You need to payment!`,
+            message : `You need to payment to finish purchase`,
             pending_payment: true,
             transaction : 'unsuccess',
             total_amount : 0,
@@ -249,7 +251,6 @@ class CartService {
                 //stock discount
                 await productService.stockDiscount(pid,element.quantity)
                 //delete product from cart
-                //FIX: if delete fails ? handle error?
                 const result = await this.deleteProduct(cid,pid)
                 //amount accum
                 total_amount += (p.price * element.quantity)
@@ -263,7 +264,7 @@ class CartService {
         if(products_purchase.length == 0){
           return {
             status: false ,
-            message : `Oh! we sorry, none of your products are available at this time, don't worry, we will notify you when there is stock!`,
+            message : `Oh! we sorry, none of your products are available at this time, don't worry, we will notify you when there is stock!. We refund your money`,
             pending_payment: false,
             transaction : 'unsuccess',
             total_amount : 0,
@@ -283,8 +284,7 @@ class CartService {
         }
 
         //if everything turned out correctly, we create a ticket and send an email to customer in ticket Service
-        //FIXME: await ticket generation ?
-        const result = await ticketService.generateTicket(operation)
+        const result = await ticketService.generateTicket(operation,products_success,owner)
 
         return operation
 

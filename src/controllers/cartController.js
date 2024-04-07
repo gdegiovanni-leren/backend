@@ -20,12 +20,11 @@ paymentNotification = async( req, res ) => {
   let topic = req.query.topic;
   console.log('data request: '+id+' '+topic);
   if(topic == 'merchant_order'){
-    console.log(' @ TOPIC MERCHANT ORDER')
+    //TOPIC MERCHANT ORDER - SKIP
   }else{
     console.log(' @ TOPIC PAYMENT')
 
       let body = await req.body
-      console.log('body data',body.data)
 
       let notification_id = body.id ?? null;
       let action = body.action ?? null;
@@ -60,7 +59,7 @@ paymentNotification = async( req, res ) => {
         console.log(payment_method,payment_method_id,payment_type_id,status,status_detail,transaction_amount,cid)
 
         if(status == 'approved'){
-          console.log('STATUS APPROVED!!!')
+          console.log('STATUS APPROVED')
           const result = await cartService.updateStatusCart(cid,payment_id,status)
           console.log('status result update cart? ',result)
         }else{
@@ -84,44 +83,38 @@ paymentNotification = async( req, res ) => {
 
 
 
-createPreference = async( req , res ) => {
+createPreference = async (req,res) => {
 
 const { cid } = req.params
 const { username } = await req.user
 console.log('creating preference for cid ',cid)
 
 const user = await userService.getUserByUsername(username)
-const cart = await cartService.getCart(cid)
+let cart = await cartService.getCart(cid)
 
 if(!cart || cart.status == false ) return res.status(404).json({ status: false, message: 'Cannot create preference, cart not found'})
 
-console.log('user found?', user)
-console.log('cart found?', cart)
 
-// Add Your credentials
+//Credentials
 const client = new MercadoPagoConfig({ accessToken: 'TEST-2560306983812053-042718-778c75b9047a1615c853929a0f1b1798-249531119' });
 const preference = new Preference(client);
 
-console.log('notification calback to ')
-console.log(`${config.base_url}api/carts/payment_notification`)
-//notification_url: `${config.base_url}api/carts/payment_notification`,
-//notification_url = https://backend-production-2f21.up.railway.app/api/carts/payment_notification
 
+const items = Array()
 
-preference.create({
+for(let product of cart.cart.products){
+  console.log(product)
+  const item = {
+    title : product.product.title,
+    quantity: product.quantity,
+    unit_price: product.product.price
+  }
+}
+console.log(items)
+
+await preference.create({
     body: {
-      items: [
-        {
-          title: 'My product 1',
-          quantity: 1,
-          unit_price: 2000
-        },
-        {
-          title: 'My product 2',
-          quantity: 1,
-          unit_price: 2000
-        }
-      ],
+      items: items,
       payer: {
         name: user.profile_name ? user.profile_name : user.username,
         email: user.username,
@@ -141,10 +134,12 @@ preference.create({
     }
   })
   .then( async result => {
-    console.log('result id ?',result.id)
+    console.log('result id ?',result)
+    console.log('user id to set owner ?',user._uid)
     if(result.id){
-      cart.preference_id = result.id
-      cart.preference_setup = true
+       cart.preference_id = result.id
+       cart.preference_setup = true
+       cart.owner = user._uid
       const updatecart = await cartService.updateCartPreferences(cid,cart)
       if(updatecart == true){
         return res.status(200).json({ status:  true, preference_id : result.id, message: 'Cart preferences updated'})
@@ -156,7 +151,7 @@ preference.create({
   })
   .catch( error => {
     console.log(error);
-    return res.status(200).json({status: false, message: 'fail'})
+    return res.status(200).json({status: false, message: 'Error updating cart preferences'})
   })
 }
 
@@ -164,9 +159,9 @@ preference.create({
 createCart = async (req, res) => {
     const cart_id = await cartService.createCart()
     if(cart_id){
-     res.status(200).json(cart_id)
+     return res.status(200).json(cart_id)
     }else{
-     res.status(200).json({ status: false, error: 'There was an error creating a new cart' })
+     return res.status(200).json({ status: false, error: 'There was an error creating a new cart' })
     }
 }
 
@@ -243,7 +238,7 @@ deleteProduct = async( req, res) => {
 
 
 
-purchase = async (req , res ) => {
+purchase = async (req,res ) => {
     const { cid } = req.params
 
     if(cid){

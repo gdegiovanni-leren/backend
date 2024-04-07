@@ -15,7 +15,7 @@ import SwaggerUiExpress from 'swagger-ui-express'
 import { Server } from 'socket.io'
 
 const corsOrigin ={
-  origin: [ 'https://frontend-production-b6db.up.railway.app/' ,'https://frontend-production-b6db.up.railway.app' ],
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
   credentials: true,
   optionSuccessStatus:200
 }
@@ -65,7 +65,7 @@ const httpServer = app.listen(config.port, () => console.log('Listening on port 
 
 const socketServer = new Server(httpServer, {
   cors: {
-    origin: [ 'https://frontend-production-b6db.up.railway.app/' ,'https://frontend-production-b6db.up.railway.app' ],
+    origin: [ 'http://localhost:5173' ,'http://127.0.0.1:5173' ],
     credentials: false
   }
 });

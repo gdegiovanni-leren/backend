@@ -19,11 +19,14 @@ const ticketSchema = mongoose.Schema({
         type: String,
         requred: true
     },
-    purchaser: {
+    purchaser_username: {
         type: String,
         required: true
     },
-
+    purcharser_id: {
+        type: String,
+        required: true
+    },
     purchase_datetime : {
         type: Date,
         required: true,

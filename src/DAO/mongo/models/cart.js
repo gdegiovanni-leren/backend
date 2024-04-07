@@ -20,6 +20,11 @@ const cartSchema = mongoose.Schema({
 
         default: []
     },
+    cart_owner: {
+        type: String,
+        required: false,
+        default: ''
+    },
     preference_setup: {
         type: Boolean,
         required: false,
@@ -28,7 +33,7 @@ const cartSchema = mongoose.Schema({
     preference_id: {
         type: String,
         required: false,
-        default: null
+        default: ''
     },
     payment_status:{
         type: Boolean,
@@ -36,7 +41,7 @@ const cartSchema = mongoose.Schema({
         default: false
     },
     payment_id:{
-        type:String,
+        type: String,
         required: false,
         default: ''
     },
