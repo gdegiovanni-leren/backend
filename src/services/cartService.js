@@ -134,6 +134,28 @@ class CartService {
     }
 
 
+    updateStatusCart = async ( cid, payment_id,status) => {
+
+      try{
+        let cart = await this.cartDAO.findById(cid)
+
+        if(!cart)  return { status: false ,  message : `The cart could not be updated. Cart with ${cid} not found`}
+
+        cart.payment_status = true
+        cart.payment_id = payment_id
+        cart.status = status
+
+       await this.cartDAO.update(cid,cart)
+       return {status: true, message: 'OK' }
+
+      }catch(e){
+        console.log(e)
+        return { status : false, message: 'Unknown error updating status payment cart '}
+      }
+
+    }
+
+
     deleteAllProducts = async (cid) => {
         try{
             let cart = await this.cartDAO.findById(cid)
