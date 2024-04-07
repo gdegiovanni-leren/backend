@@ -187,10 +187,12 @@ class ProductService {
               //thumbnails_url.push(`${name}_${new Date().getDay()}.${extension}`)
               //thumbnails_url.push('assets/images/'+file.filename)
               console.log('base url: ',config.base_url)
-              const url = `${config.base_url}assets/products/${file.filename}`
+              let url = `${config.base_url}assets/products/${file.filename}`
+              const url_thumbnail = url.replace("+", "");
+
                console.log('thumnail push to destination:')
-              console.log(url)
-              thumbnails_url.push(url)
+              console.log(url_thumbnail)
+              thumbnails_url.push(url_thumbnail)
 
             }
 
