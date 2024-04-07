@@ -11,10 +11,10 @@ paymentNotification = async( req, res ) => {
 
   let id = req.query.id;
   let topic = req.query.topic;
-  logger.info('data request: '+id+' '+topic);
+  console.log('data request: '+id+' '+topic);
   if(id){
     //first response notification webhook received
-    logger.info('first response webhook id found');
+    console.log('first response webhook id found');
     //res.status(200).send('OK');
   }
   let body = req.body;
