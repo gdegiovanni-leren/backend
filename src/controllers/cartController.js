@@ -19,41 +19,44 @@ paymentNotification = async( req, res ) => {
   let id = req.query.id;
   let topic = req.query.topic;
   console.log('data request: '+id+' '+topic);
-  if(id){
-    //first response notification webhook received
-    console.log('first response webhook id found');
-    //res.status(200).send('OK');
+  if(topic == 'merchant_order'){
+    console.log(' @ TOPIC MERCHANT ORDER')
+    try{
+      const mercadopago = new MercadoPagoConfig({ accessToken: 'TEST-2560306983812053-042718-778c75b9047a1615c853929a0f1b1798-249531119' });
+      const customerClient = new MerchantOrder(mercadopago);
+      console.log('MERCHANT ORDER ID TO SET',id)
+      await customerClient.get({ merchantOrderId: id }).then(console.log).catch(console.log);
+
+      }catch(e){
+        console.log(e)
+      }
+  }else{
+      console.log(' @ TOPIC OTHER')
+
+      let query = await req.query
+      console.log(query)
+      let body = await req.body;
+      console.log(body)
+      let params = await req.params
+      console.log(params)
+
+      let notification_id = body.id ?? null;
+      let action = body.action ?? null;
+      let type = body.type ?? null;
+      let date_created = body.date_created ?? null;
+      let payment_id = body.data.id ?? null;
+
+    let mp_payment = {
+      notification_id : notification_id,
+      status : action,
+      payment_type : type,
+      date_created : date_created,
+      payment_id : payment_id
+    }
+    console.log(mp_payment)
+
   }
-  let body = req.body;
-  console.log(body)
 
-  /*
-  let mp_payment = {
-    notification_id : notification_id,
-    status : action,
-    payment_type : type,
-    date_created : date_created,
-    payment_id : payment_id
-  }
-  */
-
-  //console.log(mp_payment);
-
-
-  /*
-  if(mp_payment.payment_id){
-  console.log('notification payment id found, checking API payment...');
-  }
-  */
-  try{
-  const mercadopago = new MercadoPagoConfig({ accessToken: 'TEST-2560306983812053-042718-778c75b9047a1615c853929a0f1b1798-249531119' });
-  const customerClient = new MerchantOrder(mercadopago);
-  console.log('MERCHANT ORDER ID TO SET',id)
-  await customerClient.get({ merchantOrderId: id }).then(console.log).catch(console.log);
-
-  }catch(e){
-    console.log(e)
-  }
 
   return res.status(200).json({messsage: 'OK'})
 }
