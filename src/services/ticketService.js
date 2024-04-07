@@ -9,14 +9,13 @@ class TicketService {
       this.ticketDAO = dao
     }
 
-
     generateTicket = async (data,products_success,owner) => {
         try{
             let ticket = {
                 code: crypto.randomBytes(20).toString('hex'),
                 amount : parseFloat(data.total_amount),
                 operation_status : data.transaction,
-                status: 'Success' ,
+                status: 'Success',
                 purcharser_id : owner._id.toString(),
                 purchaser_username : owner.username,
             }
@@ -27,7 +26,7 @@ class TicketService {
             return true
 
         }catch(e){
-            console.error('unknown error in Generate Ticket', e)
+            console.error('Unknown error in Generate Ticket', e)
         }
     return false
     }

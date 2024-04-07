@@ -45,6 +45,7 @@ import __dirname from '../utils.js'
   }).array('thumbnails', 5)
 
 
+
   export  const uploadProfileImage = multer({
         storage: multer.diskStorage({
             destination: (req, file, cb) => {
@@ -66,6 +67,7 @@ import __dirname from '../utils.js'
           cb(null, true)
         }
   }).single('profile_picture')
+
 
 
   export  const uploadDocuments = multer({

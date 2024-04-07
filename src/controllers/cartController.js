@@ -6,26 +6,20 @@ class CartController {
 
 constructor(){}
 
-/*
-const client = new MercadoPago({ accessToken: 'ACCESS_TOKEN' });
-const customerClient = new MerchantOrder(client);
 
-customerClient.get({ merchantOrderId: '<MERCHANT_ORDER_ID>' }).then(console.log).catch(console.log);
-*/
+paymentNotification = async( req,res) => {
 
-paymentNotification = async( req, res ) => {
   console.log('@@@@@ webhook received @@@@@@')
 
   let id = req.query.id;
   let topic = req.query.topic;
-  console.log('data request: '+id+' '+topic);
+
   if(topic == 'merchant_order'){
     //TOPIC MERCHANT ORDER - SKIP
   }else{
     console.log(' @ TOPIC PAYMENT')
 
       let body = await req.body
-
       let notification_id = body.id ?? null;
       let action = body.action ?? null;
       let type = body.type ?? null;
@@ -42,7 +36,7 @@ paymentNotification = async( req, res ) => {
     console.log(mp_payment)
 
     try{
-      const mercadopago = new MercadoPagoConfig({ accessToken: 'TEST-2560306983812053-042718-778c75b9047a1615c853929a0f1b1798-249531119' });
+      const mercadopago = new MercadoPagoConfig({ accessToken: config.mercadopago_access_token });
       const payment_instance = new Payment(mercadopago)
       console.log('PAYMENT  ID TO SET',payment_id)
       await payment_instance.get({ id: payment_id }).then( async (payment) => {
@@ -64,20 +58,18 @@ paymentNotification = async( req, res ) => {
           console.log('status result update cart? ',result)
         }else{
           console.log('status not approved')
+          //handle error
         }
 
-
      }).catch( (e) => {
-      console.log(e)
+      console.error(e)
     });
 
     }catch(e){
-      console.log(e)
+      console.error(e)
     }
-
   }
-
-
+  //return 200 to mercadopago
   return res.status(200).json({messsage: 'OK'})
 }
 
@@ -94,11 +86,9 @@ let cart = await cartService.getCart(cid)
 
 if(!cart || cart.status == false ) return res.status(404).json({ status: false, message: 'Cannot create preference, cart not found'})
 
-
 //Credentials
-const client = new MercadoPagoConfig({ accessToken: 'TEST-2560306983812053-042718-778c75b9047a1615c853929a0f1b1798-249531119' });
+const client = new MercadoPagoConfig({ accessToken: config.mercadopago_access_token });
 const preference = new Preference(client);
-
 
 const items = Array()
 
@@ -111,7 +101,6 @@ for(let product of cart.cart.products){
   }
   items.push(item)
 }
-console.log(items)
 
 await preference.create({
     body: {
@@ -148,9 +137,8 @@ await preference.create({
       }
     }
 
-  })
-  .catch( error => {
-    console.log(error);
+  }).catch( error => {
+    console.error(error)
     return res.status(200).json({status: false, message: 'Error updating cart preferences'})
   })
 }
@@ -215,7 +203,6 @@ updateCart = async ( req , res ) => {
 //delete all products in cart
 deleteAllProducts = async (req , res) => {
     const { cid } = req.params
-
     if(cid){
       const result = await cartService.deleteAllProducts(cid)
       return res.status(200).json(result)
@@ -237,8 +224,7 @@ deleteProduct = async( req, res) => {
 }
 
 
-
-purchase = async (req,res ) => {
+purchase = async (req,res) => {
     const { cid } = req.params
 
     if(cid){

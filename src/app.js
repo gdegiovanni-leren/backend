@@ -29,12 +29,9 @@ app.use(cors(corsOrigin))
 app.use('/login', loginRouter)
 app.use('/register', registerRouter)
 
-
 app.use('/api/products', productsRouter )
 app.use('/api/carts', cartsRouter )
 app.use('/api/users', usersRouter )
-
-//app.use('/message',messagesRouter)
 
 
 app.use('/assets',express.static(__dirname + '/public' ))
@@ -58,10 +55,10 @@ const specs = swaggerJSDoc(swaggerOptions)
 app.use('/apidocs',SwaggerUiExpress.serve,SwaggerUiExpress.setup(specs))
 
 
-
 const httpServer = app.listen(config.port, () => console.log('Listening on port '+config.port))
-//const socketServer = new Server(httpServer)
 
+
+/*SOCKETS */
 
 const socketServer = new Server(httpServer, {
   cors: {
@@ -75,22 +72,12 @@ socketServer.on('connect', async socket => {
   console.log('Client connected')
 
     socket.on('add_comment', async comment => {
-
-        console.log('NEW COMMENT SOCKET CALL')
-
         const result = await addComment(comment)
-
         if(result){
           const comments = await getComments(comment.product_id)
-          console.log('get comments success')
           socketServer.emit('incoming_messages', comments)
         }else{
-          console.error('No se pudo guardar/emitir el mensaje')
+          console.error('Error emmiting message...')
         }
-
-        //socketServer.emit('algo', comment)
     })
-
   })
-
-  //app.set('socketio',socketServer);

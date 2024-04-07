@@ -14,29 +14,28 @@ class UserService {
       this.userDAO = dao
     }
 
+
     register = async (username, password, confirmPassword ) => {
 
         console.log('calling register in user service')
         try{
-        let user = await this.userDAO.findOne(username)
-        if(user){
-            return { isvalid: false , status : 400, message: "Username already exist"}
-        }
-        if(password !== confirmPassword){
-            return { isvalid: false, status: 400, message: "Passwords do not match"}
-        }
-        const salt = await bcrypt.genSalt(10)
-        const hashedPassword = await bcrypt.hash(password, salt)
-        user = {
-            username,
-            password: hashedPassword,
-            role: await this.getRole(username,password),
-            last_connection : new Date()
-        };
-        const createdUser =  await this.userDAO.create(user)
-        const token = jwt.sign({id: user._id, username: user.username, role: user.role }, config.jwt_secret_key, {expiresIn: "20m"} )
+            let user = await this.userDAO.findOne(username)
 
-        return { isvalid: true, status: 200, username: user.username, token, role: user.role }
+            if(user) return { isvalid: false , status : 400, message: "Username already exist"}
+            if(password !== confirmPassword) return { isvalid: false, status: 400, message: "Passwords do not match"}
+
+            const salt = await bcrypt.genSalt(10)
+            const hashedPassword = await bcrypt.hash(password, salt)
+            user = {
+                username,
+                password: hashedPassword,
+                role: await this.getRole(username,password),
+                last_connection : new Date()
+            };
+            const createdUser =  await this.userDAO.create(user)
+            const token = jwt.sign({id: user._id, username: user.username, role: user.role }, config.jwt_secret_key, {expiresIn: "20m"} )
+
+            return { isvalid: true, status: 200, username: user.username, token, role: user.role }
 
         }catch(e){
             console.log(e)
@@ -48,20 +47,20 @@ class UserService {
 
         console.log('calling login in user service')
         try{
-        let user = await this.userDAO.findOne(username)
-        if(!user){
-          return { isvalid : false, status : 400 , message: "Invalid user" }
-        }
-        const isMatch = await bcrypt.compare(password, user.password)
-        if (!isMatch) {
-          return{ isvalid : false , status: 400, message: "Invalid password" }
-        }
-        const token = jwt.sign({id: user._id, username: user.username, role : user.role}, config.jwt_secret_key, {expiresIn: "30m"} )
+            let user = await this.userDAO.findOne(username)
+            if(!user){
+            return { isvalid : false, status : 400 , message: "Invalid user" }
+            }
+            const isMatch = await bcrypt.compare(password, user.password)
+            if (!isMatch) {
+            return{ isvalid : false , status: 400, message: "Invalid password" }
+            }
+            const token = jwt.sign({id: user._id, username: user.username, role : user.role}, config.jwt_secret_key, {expiresIn: "30m"} )
 
-        user.last_connection = new Date()
-        await this.userDAO.update(user)
+            user.last_connection = new Date()
+            await this.userDAO.update(user)
 
-        return { isvalid : true, message: token, username: username, role: user.role }
+            return { isvalid : true, message: token, username: username, role: user.role }
 
         }catch(e){
             console.log(e)
@@ -74,28 +73,26 @@ class UserService {
 
         console.log('calling logout in user service')
         try{
-        let user = await this.userDAO.findOne(username)
-        if(!user){
-          return { isvalid : false, status : 400 , message: "Invalid user" }
-        }
+            let user = await this.userDAO.findOne(username)
+            if(!user){
+            return { isvalid : false, status : 400 , message: "Invalid user" }
+            }
+            user.last_connection = new Date()
+            await this.userDAO.update(user)
 
-        user.last_connection = new Date()
-        await this.userDAO.update(user)
-
-        return { isvalid : true, status: 200, message: 'OK' , username : username }
+            return { isvalid : true, status: 200, message: 'OK' , username : username }
 
         }catch(e){
-            console.log(e)
+            console.error(e)
             return { isvalid: false, status: 500, message: 'Unknown error in logout user' }
         }
     }
 
     getUserById = async (uid) => {
-        console.log('get user by id ',uid)
         try{
           return await this.userDAO.findById(uid)
         }catch(e){
-            console.log(e)
+            console.error(e)
           return null
         }
     }
@@ -105,7 +102,7 @@ class UserService {
         try{
           return await this.userDAO.findOne(username)
         }catch(e){
-            console.log(e)
+            console.error(e)
           return null
         }
     }
@@ -183,20 +180,17 @@ class UserService {
                 const last_connection = user.last_connection
 
                 if(last_connection){
+                /* FOR TESTING PROPOUSALS, DELETE ALL USERS WITH 30 MINUTES OF INACTIVITY*/
 
-                console.log('date now',now)
-                console.log('last_connection',last_connection)
                 //diff in miliseconds
                 let diff = (now - last_connection)
                 diff = (diff / 1000) / 60
                 console.log('DIF',diff)
-                    if(parseInt(diff) > 2){
+                    if(parseInt(diff) > 30){
                         //EXIPRED DATE: delete user
-                        console.log('deleting user with diff',diff)
                         const email = user.username
                         //delete
                         await this.userDAO.deleteOne(user._id)
-                        //send email to customer
                     //SEND EMAIL ASYNC
                     sendDeletedUserEmail(email)
                     count++
@@ -239,7 +233,7 @@ class UserService {
             let user = await this.userDAO.findOne(username)
             if(!user) return { isvalid : false, status : 400 , data : null, message: "No user found" }
 
-            let url = `${config.base_url}assets/profiles/${file.filename}`
+            let url = `${config.base_url}assets/profiles/${file?.filename}`
             ///fix wired error production
             const profile_url = url.replace("=", "")
 
@@ -251,7 +245,7 @@ class UserService {
 
             return  { isvalid : true, status : 200 , data: user.profile_picture , message: "Profile updated succesfully!" }
         }catch(e){
-            console.log(e)
+            console.error(e)
             return { isvalid: false, status: 500, data : null,  message: 'Unknown error in update profile, try again later.' }
         }
     }
@@ -288,7 +282,6 @@ class UserService {
         console.log('Update premium user membrecy')
         try{
             let user = await this.userDAO.findOne(username)
-            console.log('premium user found to update? ',user)
             if(!user) return { isvalid : false, status : 400 , message: "No user found" }
 
             if(user.documents_status == false) return { isvalid : false, status : 400 , message: "You need to upload all documentation to become a premium user." }
@@ -324,9 +317,8 @@ class UserService {
                 //diff in miliseconds
                 let diff = (now - expire_at)
                 diff = (diff / 1000) / 60
-                console.log('RECOVERY PASSWORD: DIF OF DATES IN MINUTES',diff)
-                //TODO: replace with 30
-                if(parseInt(diff) >= 2){
+                // if past 30 minutes....
+                if(parseInt(diff) >= 30){
                     //EXIPRED DATE
                     user.recovery_expires_at = null
                     user.recovery_sended = false

@@ -89,8 +89,7 @@ class CartService {
                   productOnCart.quantity = ( parseInt(productOnCart.quantity) + parseInt(quantity) )
                 }
 
-                const result = await this.cartDAO.update(cid,cart)
-
+              const result = await this.cartDAO.update(cid,cart)
               return { status: true ,  message : `Product updated successfully!`}
             }else{
               return { status: true ,  message : `Product not found in cart` }
@@ -101,6 +100,7 @@ class CartService {
         }
       return { status: false ,  message : `Error when increasing/decreasing quantity on cart.`}
     }
+
 
 
     updateCart = async (cid , products ) => {
@@ -127,11 +127,11 @@ class CartService {
           return { status: true ,  message : `Products successfully updated on cart`}
 
           }catch(e){
-              console.log(e)
+              console.error(e)
           }
-
      return { status: false ,  message : `The cart could not be updated.`}
     }
+
 
 
     updateStatusCart = async ( cid, payment_id,status) => {
@@ -152,8 +152,8 @@ class CartService {
         console.log(e)
         return { status : false, message: 'Unknown error updating status payment cart '}
       }
-
     }
+
 
 
     deleteAllProducts = async (cid) => {
@@ -169,6 +169,7 @@ class CartService {
         }
       return { status: false ,  message : `The products could not be removed from cart`}
     }
+
 
 
     deleteProduct = async (cid,pid) => {
@@ -197,7 +198,8 @@ class CartService {
     }
 
 
-    updateCartPreferences = async (cid,cart) => {
+
+  updateCartPreferences = async (cid,cart) => {
       try{
         console.log('updating cart', cart)
         await this.cartDAO.update(cid,cart)
@@ -206,11 +208,11 @@ class CartService {
         console.log('exception update cart preferences',e)
         return false
       }
-    }
+  }
+
 
 
     purchase = async (cid) => {
-
       try{
 
         let cart = await this.cartDAO.findById(cid)
@@ -294,7 +296,6 @@ class CartService {
 
       return { status: false , message : `The operation failed.` }
     }
-
 
 
 }
