@@ -186,9 +186,11 @@ class ProductService {
               //const extension = originalname[1]
               //thumbnails_url.push(`${name}_${new Date().getDay()}.${extension}`)
               //thumbnails_url.push('assets/images/'+file.filename)
-              console.log('thumnail push to destination:')
-              console.log(`${config.base_url}assets/products/${file.filename}`)
-              thumbnails_url.push(`${config.base_url}assets/products/${file.filename}`)
+              console.log('base url: ',config.base_url)
+              const url = `${config.base_url}assets/products/${file.filename}`
+               console.log('thumnail push to destination:')
+              console.log(url)
+              thumbnails_url.push(url)
 
             }
 
