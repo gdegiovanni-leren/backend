@@ -125,15 +125,12 @@ class UserService {
                 payload.push( new userDTO(user).getUserForAdmin() )
               }
             }
-            console.log('returning users for admin')
-
             return { isvalid : true, status : 200 , data : payload , message: 'OK'}
 
         }catch(e){
-            console.log(e)
+            console.error(e)
             return { isvalid: false, status: 500, data: null,  message: 'Unknown error in getting users, try again later.' }
         }
-
     }
 
 
@@ -145,7 +142,7 @@ class UserService {
             return  { isvalid : true, status : 200 , data : new userDTO(user).getProfileData(), message: "OK" }
 
         }catch(e){
-            console.log(e)
+            console.error(e)
             return { isvalid: false, status: 500, data: null,  message: 'Unknown error in get profile data, try again later.' }
         }
     }
@@ -164,14 +161,14 @@ class UserService {
             return  { isvalid : true, status : 200 , message: " User updated succesfully!" }
 
         }catch(e){
-            console.log(e)
+            console.error(e)
             return { isvalid: false, status: 500, data : null,  message: 'Unknown error in update user, try again later.' }
         }
     }
 
+
     deleteAllUsers = async () => {
         try{
-
             let users = await this.userDAO.getAllUsers()
 
             if(!users) return { isvalid : false, status : 400 , data: null, message: "No users found to delete" }
@@ -193,23 +190,21 @@ class UserService {
                 let diff = (now - last_connection)
                 diff = (diff / 1000) / 60
                 console.log('DIF',diff)
-                if(parseInt(diff) > 2){
-                    //EXIPRED DATE: delete user
-                    console.log('deleting user with diff',diff)
-                    const email = user.username
-                    //delete
-                    await this.userDAO.deleteOne(user._id)
-                    //send email to customer
-                   //SEND EMAIL ASYNC
-                   sendDeletedUserEmail(email)
-                   count++
+                    if(parseInt(diff) > 2){
+                        //EXIPRED DATE: delete user
+                        console.log('deleting user with diff',diff)
+                        const email = user.username
+                        //delete
+                        await this.userDAO.deleteOne(user._id)
+                        //send email to customer
+                    //SEND EMAIL ASYNC
+                    sendDeletedUserEmail(email)
+                    count++
+                    }
                 }
-                }
-
               }
             }
-
-            return { isvalid: true, status: 200,  message: 'Operation success. '+count+' users deleted.' }
+        return { isvalid: true, status: 200,  message: 'Operation success. '+count+' users deleted.' }
 
         }catch(e){
             console.log(e)
@@ -220,7 +215,6 @@ class UserService {
 
     deleteUser = async (uid) => {
         try{
-            console.log('TRYING TO DELETE ONE USER BY UID ',uid)
             let user = await this.userDAO.findById(uid)
 
             if(!user) return { isvalid : false, status : 400, message: "No users found to delete" }
@@ -232,7 +226,6 @@ class UserService {
             sendDeletedUserEmail(email)
 
             return { isvalid: true, status: 200, message: 'Operation success. User deleted' }
-
         }catch(e){
             console.log(e)
             return { isvalid: false, status: 500, message: 'Unknown error trying to delete user, try again later.' }
@@ -257,7 +250,6 @@ class UserService {
             await this.userDAO.update(user)
 
             return  { isvalid : true, status : 200 , data: user.profile_picture , message: "Profile updated succesfully!" }
-
         }catch(e){
             console.log(e)
             return { isvalid: false, status: 500, data : null,  message: 'Unknown error in update profile, try again later.' }
@@ -284,18 +276,16 @@ class UserService {
             await this.userDAO.update(user)
 
             return  { isvalid : true, status : 200 , message: "Documents saved succesfully!" }
-
         }catch(e){
             console.log(e)
             return { isvalid: false, status: 500 ,  message: 'Unknown error saving documents, try again later.' }
         }
-
     }
 
 
     updatePremiumMembrecy = async (username) => {
 
-        console.log('update premium user membrecy')
+        console.log('Update premium user membrecy')
         try{
             let user = await this.userDAO.findOne(username)
             console.log('premium user found to update? ',user)
@@ -306,7 +296,6 @@ class UserService {
             //if all documentaton was uploaded, update role
             user.role = 'premium'
             await this.userDAO.update(user)
-
             //send ok
             return { isValid: true, status: 200, message : "Congrats! you are now a Premium User. Please login again to see all your benefits"}
 
@@ -314,55 +303,50 @@ class UserService {
             console.log(e)
             return { isvalid: false , status : 500, message: "Unknown error updating user premium membrecy "}
         }
-
-
     }
 
 
     processRecoveryRequest = async (username,recovery_code) => {
 
-        try{
-            let user = await this.userDAO.findOne(username)
-            if(!user) return { isvalid : false, status : 400 , message: "No user found" }
+            try{
+                let user = await this.userDAO.findOne(username)
+                if(!user) return { isvalid : false, status : 400 , message: "No user found" }
 
-            //unknown error, recovery code not found in DB
-            if(!user.recovery_sended || !user.recovery_code) return { isvalid : false, status : 400 , message: "Recovery process unknown error. Try again later" }
+                //unknown error, recovery code not found in DB
+                if(!user.recovery_sended || !user.recovery_code) return { isvalid : false, status : 400 , message: "Recovery process unknown error. Try again later" }
 
-            //recovery expire timeout
-            const now = new Date()
-            const expire_at = user.recovery_expires_at
+                //recovery expire timeout
+                const now = new Date()
+                const expire_at = user.recovery_expires_at
 
-            if(!expire_at) return { isvalid : false, status : 400 , message: "Recovery process unknown error. Try again later" }
+                if(!expire_at) return { isvalid : false, status : 400 , message: "Recovery process unknown error. Try again later" }
 
-            //diff in miliseconds
-            let diff = (now - expire_at)
-            diff = (diff / 1000) / 60
-            console.log('RECOVERY PASSWORD: DIF OF DATES IN MINUTES',diff)
-            //TODO: replace with 30
-            if(parseInt(diff) >= 2){
-                //EXIPRED DATE
-                user.recovery_expires_at = null
-                user.recovery_sended = false
-                user.recovery_code = null
-                user.recovery_token = null
+                //diff in miliseconds
+                let diff = (now - expire_at)
+                diff = (diff / 1000) / 60
+                console.log('RECOVERY PASSWORD: DIF OF DATES IN MINUTES',diff)
+                //TODO: replace with 30
+                if(parseInt(diff) >= 2){
+                    //EXIPRED DATE
+                    user.recovery_expires_at = null
+                    user.recovery_sended = false
+                    user.recovery_code = null
+                    user.recovery_token = null
+                    await this.userDAO.update(user)
+                    return { isvalid : false, status : 410 , message: "Expired code. Please recovery again." }
+                }
+                //recovery code not match
+                if(user.recovery_code != recovery_code) return { isvalid : false, status : 400 , message: "Invalid recovery code" }
+
+                //generate new recovery token
+                user.recovery_token =  crypto.randomBytes(10).toString('hex')
                 await this.userDAO.update(user)
-                return { isvalid : false, status : 410 , message: "Expired code. Please recovery again." }
-            }
 
-            //recovery code not match
-            if(user.recovery_code != recovery_code) return { isvalid : false, status : 400 , message: "Invalid recovery code" }
-
-            //generate new recovery token
-            user.recovery_token =  crypto.randomBytes(10).toString('hex')
-            await this.userDAO.update(user)
-
-        return { isvalid : true , status: 200, recovery_token: user.recovery_token }
-
-    }catch(e){
-        console.log(e)
-        return { isvalid: false, status: 500, message: 'Unknown error in password Recovery, try again later.' }
-    }
-
+            return { isvalid : true , status: 200, recovery_token: user.recovery_token }
+        }catch(e){
+            console.log(e)
+            return { isvalid: false, status: 500, message: 'Unknown error in password Recovery, try again later.' }
+        }
     }
 
 
@@ -374,7 +358,6 @@ class UserService {
             }
 
             const recovery_code = crypto.randomBytes(5).toString('hex')
-
             user.recovery_code = recovery_code
             user.recovery_sended = true
             user.recovery_expires_at = new Date()
@@ -382,21 +365,18 @@ class UserService {
             await this.userDAO.update(user)
 
             const result = await sendRecoveryPasswordEmail(username,recovery_code)
-
             if(result == false)   return{ isvalid : false , status:  401 , message: "Ups, your recovery email could not be sended, plese try again later." }
 
             return{ isvalid : true , status:  200 , message: "Your password recovery send succesfully, plese put your recovery code" }
 
-
-    }catch(e){
-        console.log(e)
-        return { isvalid: false, status: 500, message: 'Unknown error in password Recovery, try again later.' }
-    }
+        }catch(e){
+            console.log(e)
+            return { isvalid: false, status: 500, message: 'Unknown error in password Recovery, try again later.' }
+        }
     }
 
 
     updatePassword = async (username,new_password,recovery_token) => {
-
 
         try{
             let user = await this.userDAO.findOne(username)
@@ -404,20 +384,14 @@ class UserService {
             //TODO: RESET PARAMS
             return { isvalid : false, status : 400 , message: "No user found with this email" }
             }
-
-            console.log('recovery token db',user.recovery_token)
-            console.log('actual recovery token',recovery_token)
             if(user.recovery_token != recovery_token){
-                console.log('recoveries token not match')
                 return { isvalid : false, status : 400 , message: "Ups. something went wrong. Try again" }
             }
-
             const isMatch = await bcrypt.compare(new_password, user.password)
             if (isMatch) {
             return{ isvalid : false , status: 400, message: "The password must be different" }
             }
 
-            console.log('todo ok, updating password')
             const salt = await bcrypt.genSalt(10)
             const hashedPassword = await bcrypt.hash(new_password, salt)
             user.password = hashedPassword
@@ -427,25 +401,16 @@ class UserService {
             user.recovery_expires_at = null
             await this.userDAO.update(user)
 
-            console.log('user password updated succesfull')
-
             return{  isvalid : true , status:  200 , message: "Your password was updated successfully!" }
 
-
-    }catch(e){
-        console.log(e)
-        return { isvalid: false, status: 500, message: 'Unknown error in password update, try again later.' }
-    }
-
-
-
-
+        }catch(e){
+            console.log(e)
+            return { isvalid: false, status: 500, message: 'Unknown error in password update, try again later.' }
+        }
     }
 
 
     getRole = async (username,password) => {
-
-        console.log('calling register validation role admin')
         if(config.admin_email === username && config.admin_password === password ){
            return 'admin'
         }

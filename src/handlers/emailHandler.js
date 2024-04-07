@@ -156,13 +156,13 @@ export const sendPurchaseEmail = async (data,products,owner) => {
             to: owner.username,
             subject: 'Your purchase details from MY SHOES MARKET',
             html: '<div>'+
-            '<h2>HI <strong>'+owner.username+'</strong>. Thanks you very much for your purchase at <strong>MY SHOES MARKET</strong></h2>'+
+            '<h2>HI <strong>'+owner.username+'</strong>. Thanks you for your purchase at <strong>MY SHOES MARKET</strong></h2>'+
             '<p>'+body_message+'</p>'+
-            '<p>TODO: DETAILS....</p>'+
-            table+
+             table+
             '<p> Total: <strong> $'+String(data.amount)+'</strong> </p></br>'+
             '<p> Ticket code: <strong> $'+data.code+'</strong> </p></br>'+
-            '<p>Thanks for trusting us!</p>'+
+            '<p>Thanks for trusting us!</p></br><br>'+
+            '<h2>MY SHOES MARKET</h2>'+
             '</div>'
             })
             return true
