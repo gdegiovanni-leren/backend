@@ -165,9 +165,13 @@ class ProductService {
     }
 
 
-    addProduct =  async (data,files,user) => {
+    addProduct =  async (data,files,username) => {
 
         try{
+            const user = await userService.getUserByUsername(username)
+            console.log('add product user found? ',user)
+            if(!user) return {status: false, message : `User not found` }
+
             const validator = validateFieldsForCreate(data)
             if(validator.status == false) return validator
 

@@ -100,6 +100,16 @@ class UserService {
         }
     }
 
+    getUserByUsername = async (username) => {
+        console.log('get user by username ',username)
+        try{
+          return await this.userDAO.findOne(username)
+        }catch(e){
+            console.log(e)
+          return null
+        }
+    }
+
 
     getAllUsers = async () => {
 

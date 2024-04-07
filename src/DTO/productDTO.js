@@ -3,6 +3,7 @@ export default class productDTO {
 
 
     constructor(product,thumbnails,user){
+        console.log('PRODUCT DTO CREATING USER ',user)
         this.title = product.title.trim(),
         this.description = product.description.trim(),
         this.code = product.code,
@@ -12,7 +13,7 @@ export default class productDTO {
         this.category = product.category.trim(),
         this.thumbnails = thumbnails
         this.owner = (user.role == 'premium' ? 'premium' : 'admin')
-        this.owner_id = user.id
+        this.owner_id = user._id
     }
 
 }

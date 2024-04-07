@@ -48,13 +48,13 @@ createProduct = async(req,res,next) => {
   const { title, description, code, price, stock, status, category  } = req.body
   let data = { title, description, code, price, stock, status, category }
 
-  //the user was validated in middleware
+
   const user = await req.user
   console.log(user)
   console.log(data)
   try {
     //process the product data, thumbnails url and user role for product role owner
-    const result = await productService.addProduct(data,req.files,user)
+    const result = await productService.addProduct(data,req.files,user.username)
     if(result.status == true){
     console.log('producto se guardo exitosamente')
     return res.status(200).json(result)
