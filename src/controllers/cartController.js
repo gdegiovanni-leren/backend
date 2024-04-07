@@ -109,6 +109,7 @@ for(let product of cart.cart.products){
     quantity: product.quantity,
     unit_price: product.product.price
   }
+  items.push(item)
 }
 console.log(items)
 
