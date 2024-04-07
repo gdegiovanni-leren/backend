@@ -89,7 +89,7 @@ const { cid } = req.params
 const { username } = await req.user
 console.log('creating preference for cid ',cid)
 
-const user = await userService.getUserByUsername(username)
+let user = await userService.getUserByUsername(username)
 let cart = await cartService.getCart(cid)
 
 if(!cart || cart.status == false ) return res.status(404).json({ status: false, message: 'Cannot create preference, cart not found'})
@@ -136,11 +136,11 @@ await preference.create({
   })
   .then( async result => {
     console.log('result id ?',result)
-    console.log('user id to set owner ?',await user._id)
+    console.log('user id to set owner ?',await user._id.toString())
     if(result.id){
        cart.preference_id = result.id
        cart.preference_setup = true
-       cart.owner = await user._id
+       cart.owner = await user._id.toString()
       const updatecart = await cartService.updateCartPreferences(cid,cart)
       if(updatecart == true){
         return res.status(200).json({ status:  true, preference_id : result.id, message: 'Cart preferences updated'})
