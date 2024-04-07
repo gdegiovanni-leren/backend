@@ -57,7 +57,7 @@ paymentNotification = async( req, res ) => {
         //THE CART ID
         const cid = payment.external_reference
 
-        console.log(payment_method,payment_method_id,payment_type_id,status,status_detail,transaction_amount,external_reference)
+        console.log(payment_method,payment_method_id,payment_type_id,status,status_detail,transaction_amount,cid)
 
         if(status == 'approved'){
           console.log('STATUS APPROVED!!!')
