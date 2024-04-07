@@ -21,20 +21,10 @@ paymentNotification = async( req, res ) => {
   console.log('data request: '+id+' '+topic);
   if(topic == 'merchant_order'){
     console.log(' @ TOPIC MERCHANT ORDER')
-    try{
-      const mercadopago = new MercadoPagoConfig({ accessToken: 'TEST-2560306983812053-042718-778c75b9047a1615c853929a0f1b1798-249531119' });
-      const customerClient = new MerchantOrder(mercadopago);
-      console.log('MERCHANT ORDER ID TO SET',id)
-      await customerClient.get({ merchantOrderId: id }).then(console.log).catch(console.log);
-
-      }catch(e){
-        console.log(e)
-      }
   }else{
-      console.log(' @ TOPIC OTHER')
+    console.log(' @ TOPIC PAYMENT')
 
-      let query = await req.query
-      let body = await req.body;
+      let body = await req.body
       console.log('body data',body.data)
 
       let notification_id = body.id ?? null;
@@ -54,9 +44,34 @@ paymentNotification = async( req, res ) => {
 
     try{
       const mercadopago = new MercadoPagoConfig({ accessToken: 'TEST-2560306983812053-042718-778c75b9047a1615c853929a0f1b1798-249531119' });
-      const payment = new Payment(mercadopago)
+      const payment_instance = new Payment(mercadopago)
       console.log('PAYMENT  ID TO SET',payment_id)
-      await payment.get({ id: payment_id }).then(console.log).catch(console.log);
+      await payment_instance.get({ id: payment_id }).then( async (payment) => {
+        console.log(payment)
+        const payment_method = payment.payment_method
+        const payment_method_id = payment.payment_method_id
+        const payment_type_id = payment.payment_type_id
+        const status = payment.status
+        const status_detail = payment.status_detail
+        const transaction_amount = payment.transaction_amount
+        //THE CART ID
+        const cid = payment.external_reference
+
+        console.log(payment_method,payment_method_id,payment_type_id,status,status_detail,transaction_amount,external_reference)
+
+        if(status == 'approved'){
+          console.log('STATUS APPROVED!!!')
+          const result = await cartService.updateStatusCart(cid,payment_id,status)
+          console.log('status result update cart? ',result)
+        }else{
+          console.log('status not approved')
+        }
+
+
+     }).catch( (e) => {
+      console.log(e)
+    });
+
     }catch(e){
       console.log(e)
     }
