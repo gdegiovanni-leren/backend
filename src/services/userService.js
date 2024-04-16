@@ -23,7 +23,7 @@ class UserService {
 
             if(user) return { isvalid: false , status : 400, message: "Username already exist"}
             const re = /\S+@\S+\.\S+/;
-            if(re.test(email) == false) return { isvalid: false, status: 400, message: "You must enter a valid email format . Example a@a.a"}
+            if(re.test(username) == false) return { isvalid: false, status: 400, message: "You must enter a valid email format . Example a@a.a"}
             if(password !== confirmPassword) return { isvalid: false, status: 400, message: "Passwords do not match"}
 
             const salt = await bcrypt.genSalt(10)
