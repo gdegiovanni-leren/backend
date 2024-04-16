@@ -22,6 +22,8 @@ class UserService {
             let user = await this.userDAO.findOne(username)
 
             if(user) return { isvalid: false , status : 400, message: "Username already exist"}
+            const re = /\S+@\S+\.\S+/;
+            if(!re.test(email)) return { isvalid: false, status: 400, message: "You must enter a valid email format . Example a@a.a"}
             if(password !== confirmPassword) return { isvalid: false, status: 400, message: "Passwords do not match"}
 
             const salt = await bcrypt.genSalt(10)
@@ -32,7 +34,7 @@ class UserService {
                 role: await this.getRole(username,password),
                 last_connection : new Date()
             };
-            const createdUser =  await this.userDAO.create(user)
+            await this.userDAO.create(user)
             const token = jwt.sign({id: user._id, username: user.username, role: user.role }, config.jwt_secret_key, {expiresIn: "20m"} )
 
             return { isvalid: true, status: 200, username: user.username, token, role: user.role }
@@ -98,7 +100,6 @@ class UserService {
     }
 
     getUserByUsername = async (username) => {
-        console.log('get user by username ',username)
         try{
           return await this.userDAO.findOne(username)
         }catch(e){
@@ -123,7 +124,6 @@ class UserService {
               }
             }
             return { isvalid : true, status : 200 , data : payload , message: 'OK'}
-
         }catch(e){
             console.error(e)
             return { isvalid: false, status: 500, data: null,  message: 'Unknown error in getting users, try again later.' }
@@ -137,7 +137,6 @@ class UserService {
             if(!user) return { isvalid : false, status : 400 , data: null, message: "No user found" }
 
             return  { isvalid : true, status : 200 , data : new userDTO(user).getProfileData(), message: "OK" }
-
         }catch(e){
             console.error(e)
             return { isvalid: false, status: 500, data: null,  message: 'Unknown error in get profile data, try again later.' }
@@ -171,37 +170,36 @@ class UserService {
             if(!users) return { isvalid : false, status : 400 , data: null, message: "No users found to delete" }
 
             let count = 0
-            //verifing date an delete
-            for( let user of users){
-              if(user.role != 'admin'){
-                console.log('user last connection ',user.last_connection)
-                //verify expires date connection
-                const now = new Date()
-                const last_connection = user.last_connection
+                //verifing date an delete
+                for( let user of users){
+                    if(user.role != 'admin'){
+                        console.log('user last connection ',user.last_connection)
+                        //verify expires date connection
+                        const now = new Date()
+                        const last_connection = user.last_connection
 
-                if(last_connection){
-                /* FOR TESTING PROPOUSALS, DELETE ALL USERS WITH 30 MINUTES OF INACTIVITY*/
+                        if(last_connection){
+                        /* FOR TESTING PROPOUSALS, DELETE ALL USERS WITH 30 MINUTES OF INACTIVITY*/
 
-                //diff in miliseconds
-                let diff = (now - last_connection)
-                diff = (diff / 1000) / 60
-                console.log('DIF',diff)
-                    if(parseInt(diff) > 30){
-                        //EXIPRED DATE: delete user
-                        const email = user.username
-                        //delete
-                        await this.userDAO.deleteOne(user._id)
-                    //SEND EMAIL ASYNC
-                    sendDeletedUserEmail(email)
-                    count++
+                        //diff in miliseconds
+                        let diff = (now - last_connection)
+                        diff = (diff / 1000) / 60
+                        console.log('DIF',diff)
+                            if(parseInt(diff) > 30){
+                                //EXIPRED DATE -> delete user
+                                const email = user.username
+                                await this.userDAO.deleteOne(user._id)
+                            //SEND EMAIL ASYNC
+                            sendDeletedUserEmail(email)
+                            count++
+                            }
+                        }
                     }
                 }
-              }
-            }
-        return { isvalid: true, status: 200,  message: 'Operation success. '+count+' users deleted.' }
+            return { isvalid: true, status: 200,  message: 'Operation success. '+count+' users deleted.' }
 
         }catch(e){
-            console.log(e)
+            console.error(e)
             return { isvalid: false, status: 500,  message: 'Unknown error trying to delete all users, try again later.' }
         }
     }
@@ -293,7 +291,7 @@ class UserService {
             return { isValid: true, status: 200, message : "Congrats! you are now a Premium User. Please login again to see all your benefits"}
 
         }catch(e){
-            console.log(e)
+            console.error(e)
             return { isvalid: false , status : 500, message: "Unknown error updating user premium membrecy "}
         }
     }
@@ -336,7 +334,7 @@ class UserService {
 
             return { isvalid : true , status: 200, recovery_token: user.recovery_token }
         }catch(e){
-            console.log(e)
+            console.error(e)
             return { isvalid: false, status: 500, message: 'Unknown error in password Recovery, try again later.' }
         }
     }
@@ -362,7 +360,7 @@ class UserService {
             return{ isvalid : true , status:  200 , message: "Your password recovery send succesfully, plese put your recovery code" }
 
         }catch(e){
-            console.log(e)
+            console.error(e)
             return { isvalid: false, status: 500, message: 'Unknown error in password Recovery, try again later.' }
         }
     }
@@ -396,7 +394,7 @@ class UserService {
             return{  isvalid : true , status:  200 , message: "Your password was updated successfully!" }
 
         }catch(e){
-            console.log(e)
+            console.error(e)
             return { isvalid: false, status: 500, message: 'Unknown error in password update, try again later.' }
         }
     }
