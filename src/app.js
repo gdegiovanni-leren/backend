@@ -37,6 +37,14 @@ app.use('/api/users', usersRouter )
 app.use('/assets',express.static(__dirname + '/public' ))
 
 app.get('/health', (req,res) => {
+  console.log('health get ok')
+  console.log(req.body)
+  res.status(200).send('OK')
+})
+
+app.post('/health', (req,res) => {
+  console.log('health post ok')
+  console.log(req.body)
   res.status(200).send('OK')
 })
 
